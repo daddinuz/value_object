@@ -21,7 +21,7 @@ def get_packages(path):
 packages = get_packages('value_object')
 setup(
     name='value_object',
-    version='0.1.0',
+    version='0.1.1',
     description='Value Object',
     url='https://github.com/daddinuz/value_object',
     author='daddinuz',
