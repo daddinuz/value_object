@@ -9,31 +9,31 @@ class Person(ValueObject):
 
 
 class TestPerson(unittest.TestCase):
-    def test_signature(self):
-        EXPECTED_ATTRIBUTES = dict(first_name=(str,), last_name=(str,), age=(int,))
-        FIRST_NAME, LAST_NAME, AGE = 'Mario', 'Rossi', 38
+    EXPECTED_ATTRIBUTES = dict(first_name=(str,), last_name=(str,), age=(int,))
+    FIRST_NAME, LAST_NAME, AGE = 'Mario', 'Rossi', 38
 
+    def test_signature(self):
         with self.assertRaises(AssertionError) as e:
             Person(
-                {'first_name': FIRST_NAME, 'last_name': LAST_NAME, 'age': AGE},
-                first_name=FIRST_NAME,
-                last_name=LAST_NAME,
-                age=AGE,
+                {'first_name': self.FIRST_NAME, 'last_name': self.LAST_NAME, 'age': self.AGE},
+                first_name=self.FIRST_NAME,
+                last_name=self.LAST_NAME,
+                age=self.AGE,
             )
         self.assertEqual('Must specify input_dict or entries, both are not allowed', str(e.exception))
 
         with self.assertRaises(exceptions.MissingAttribute) as e:
             Person(
-                first_name=FIRST_NAME,
-                last_name=LAST_NAME
+                first_name=self.FIRST_NAME,
+                last_name=self.LAST_NAME
             )
         self.assertEqual('On Person: Missing attribute `age`.', str(e.exception))
 
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             Person(
-                first_name=FIRST_NAME,
-                last_name=AGE,
-                age=AGE
+                first_name=self.FIRST_NAME,
+                last_name=self.AGE,
+                age=self.AGE
             )
         self.assertEqual(
             "On Person: invalid attribute `last_name`, expected an instance of (<class 'str'>,), got 38 which is a <class 'int'>.",
@@ -41,23 +41,42 @@ class TestPerson(unittest.TestCase):
         )
 
         sut = Person(
-            first_name=FIRST_NAME,
-            last_name=LAST_NAME,
-            age=AGE,
+            first_name=self.FIRST_NAME,
+            last_name=self.LAST_NAME,
+            age=self.AGE,
         )
-        self.assertEqual(FIRST_NAME, sut.first_name)
-        self.assertEqual(LAST_NAME, sut.last_name)
-        self.assertEqual(AGE, sut.age)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertEqual(self.FIRST_NAME, sut.first_name)
+        self.assertEqual(self.LAST_NAME, sut.last_name)
+        self.assertEqual(self.AGE, sut.age)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(self.EXPECTED_ATTRIBUTES, sut.attributes)
 
         with self.assertRaises(exceptions.InvalidAttribute) as e:
-            sut.age = float(AGE)
+            sut.age = float(self.AGE)
         self.assertEqual(
             "On Person: invalid attribute `age`, expected an instance of (<class 'int'>,), got 38.0 which is a <class 'float'>.",
             str(e.exception)
         )
 
+    def test_eq(self):
+        sut1 = Person(
+            first_name=self.FIRST_NAME,
+            last_name=self.LAST_NAME,
+            age=self.AGE,
+        )
+        sut2 = Person(
+            first_name=self.FIRST_NAME,
+            last_name=self.LAST_NAME,
+            age=self.AGE,
+        )
+        sut3 = Person(
+            first_name=self.LAST_NAME,
+            last_name=self.FIRST_NAME,
+            age=self.AGE,
+        )
+        self.assertEqual(sut1, sut2)
+        self.assertFalse(sut1 == sut3)
+        self.assertFalse(sut2 == sut3)
 
 class Pet(ValueObject):
     name = Attribute(str)
@@ -106,8 +125,8 @@ class TestPet(unittest.TestCase):
 
         self.assertEqual(NAME, sut.name)
         self.assertEqual(None, sut.owner)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         sut = Pet(
             name=NAME,
@@ -116,8 +135,8 @@ class TestPet(unittest.TestCase):
 
         self.assertEqual(NAME, sut.name)
         self.assertEqual(OWNER, sut.owner)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         sut.owner = None
         self.assertEqual(None, sut.owner)
@@ -171,8 +190,8 @@ class TestPoint(unittest.TestCase):
         )
         self.assertEqual(X1, sut.x)
         self.assertEqual(Y1, sut.y)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.y = str(Y1)
@@ -187,8 +206,8 @@ class TestPoint(unittest.TestCase):
         )
         self.assertEqual(X2, sut.x)
         self.assertEqual(Y2, sut.y)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.x = str(Y2)
@@ -221,19 +240,19 @@ class TestMixin(unittest.TestCase):
             value='foo'
         )
         self.assertEqual('foo', sut.value)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         sut = Mixin(
             value=5
         )
         self.assertEqual(5, sut.value)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
 
         sut = Mixin(
             value=[1, 2, 3]
         )
         self.assertEqual([1, 2, 3], sut.value)
-        self.assertIsInstance(sut._attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut._attributes)
+        self.assertIsInstance(sut.attributes, dict)
+        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
