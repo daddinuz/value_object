@@ -13,6 +13,18 @@ def _extract_classes(klass: typing.Type) -> typing.Set[typing.Type]:
     return extracted
 
 
+class Attribute:
+    def __init__(self, *required_types: typing.Iterable[typing.Type], nullable: bool = False):
+        if required_types and nullable:
+            self._required_types = tuple(x for x in (*required_types, type(None)))
+        else:
+            self._required_types = tuple(x for x in required_types)
+
+    @property
+    def required_types(self) -> typing.Tuple[typing.Type, ...]:
+        return self._required_types
+
+
 class ValueObject:
     """
 
@@ -67,18 +79,15 @@ class ValueObject:
         self._check_for_invalid_attribute(key, value, klass._attributes[key])
         super().__setattr__(key, value)
 
-
-class Attribute:
-    def __init__(self, *required_types: typing.Iterable[typing.Type], nullable: bool = False):
-        if required_types and nullable:
-            self._required_types = tuple(x for x in (*required_types, type(None)))
-        else:
-            self._required_types = tuple(x for x in required_types)
-
     @property
-    def required_types(self) -> typing.Tuple[typing.Type, ...]:
-        return self._required_types
+    def attributes(self) -> typing.Dict[str, Attribute]:
+        klass = self.__class__
+        return klass._attributes
 
+    def __eq__(self, other):
+
+        return type(self) == type(other) and \
+               all(getattr(self, k) == getattr(other, k) for k in self.attributes.keys())
 
 # limit exported symbols
 __all__ = ['ValueObject', 'Attribute']
