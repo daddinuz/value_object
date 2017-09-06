@@ -1,3 +1,4 @@
+import enum
 import typing
 from pycomb import exceptions as pycomb_exceptions
 
@@ -5,7 +6,9 @@ from value_object import AbstractAttributeType, ValueObject
 
 
 class BuiltinAttributeType(AbstractAttributeType):
-    _BUILTIN_TYPES = (type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict)
+    _BUILTIN_TYPES = (
+        type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict, enum.Enum
+    )
 
     def __init__(self, kind: typing.Type):
         if kind not in self._BUILTIN_TYPES:
