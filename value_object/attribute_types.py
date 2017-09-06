@@ -7,7 +7,7 @@ from value_object import AbstractAttributeType, ValueObject
 
 class BuiltinAttributeType(AbstractAttributeType):
     _BUILTIN_TYPES = (
-        type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict, enum.Enum
+        type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict, enum.EnumMeta
     )
 
     def __init__(self, kind: typing.Type):
