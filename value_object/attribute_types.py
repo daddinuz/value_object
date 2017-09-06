@@ -7,11 +7,11 @@ from value_object import AbstractAttributeType, ValueObject
 
 class BuiltinAttributeType(AbstractAttributeType):
     _BUILTIN_TYPES = (
-        type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict, enum.EnumMeta
+        type, type(None), bool, int, float, complex, str, bytes, tuple, list, set, frozenset, dict, enum.Enum
     )
 
     def __init__(self, kind: typing.Type):
-        if kind not in self._BUILTIN_TYPES:
+        if not any(issubclass(kind, t) for t in self._BUILTIN_TYPES):
             raise ValueError(
                 'Kind must be one of {}, got: {} which is of type: {}'.format(
                     self._BUILTIN_TYPES, kind, type(kind)
