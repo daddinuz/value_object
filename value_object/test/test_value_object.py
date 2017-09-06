@@ -9,7 +9,7 @@ class Person(ValueObject):
 
 
 class TestPerson(unittest.TestCase):
-    EXPECTED_ATTRIBUTES = dict(first_name=(str,), last_name=(str,), age=(int,))
+    EXPECTED_ATTRIBUTES = dict(first_name=Person.first_name, last_name=Person.last_name, age=Person.age)
     FIRST_NAME, LAST_NAME, AGE = 'Mario', 'Rossi', 38
 
     def test_signature(self):
@@ -36,8 +36,9 @@ class TestPerson(unittest.TestCase):
                 age=self.AGE
             )
         self.assertEqual(
-            "On Person: invalid attribute `last_name`, expected an instance of (<class 'str'>,), got 38 which is a <class 'int'>.",
-            str(e.exception)
+            "On Person: Invalid attribute `last_name`, got 38 which is a <class 'int'>.",
+            str(e.exception),
+
         )
 
         sut = Person(
@@ -54,7 +55,7 @@ class TestPerson(unittest.TestCase):
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.age = float(self.AGE)
         self.assertEqual(
-            "On Person: invalid attribute `age`, expected an instance of (<class 'int'>,), got 38.0 which is a <class 'float'>.",
+            "On Person: Invalid attribute `age`, got 38.0 which is a <class 'float'>.",
             str(e.exception)
         )
 
@@ -78,6 +79,7 @@ class TestPerson(unittest.TestCase):
         self.assertFalse(sut1 == sut3)
         self.assertFalse(sut2 == sut3)
 
+
 class Pet(ValueObject):
     name = Attribute(str)
     owner = Attribute(Person, nullable=True)
@@ -94,7 +96,7 @@ class TestPet(unittest.TestCase):
         )
 
     def test_signature(self):
-        EXPECTED_ATTRIBUTES = dict(name=(str,), owner=(Person, type(None)))
+        EXPECTED_ATTRIBUTES = dict(name=Pet.name, owner=Pet.owner)
         NAME, OWNER = 'Garfield', self.person
 
         with self.assertRaises(AssertionError) as e:
@@ -115,7 +117,7 @@ class TestPet(unittest.TestCase):
                 owner=self.person.first_name
             )
         self.assertEqual(
-            "On Pet: invalid attribute `owner`, expected an instance of (<class 'value_object.test.test_value_object.Person'>, <class 'NoneType'>), got Mario which is a <class 'str'>.",
+            "On Pet: Invalid attribute `owner`, got Mario which is a <class 'str'>.",
             str(e.exception)
         )
 
@@ -144,7 +146,7 @@ class TestPet(unittest.TestCase):
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.owner = self.person.first_name
         self.assertEqual(
-            "On Pet: invalid attribute `owner`, expected an instance of (<class 'value_object.test.test_value_object.Person'>, <class 'NoneType'>), got Mario which is a <class 'str'>.",
+            "On Pet: Invalid attribute `owner`, got Mario which is a <class 'str'>.",
             str(e.exception)
         )
 
@@ -156,7 +158,7 @@ class Point(ValueObject):
 
 class TestPoint(unittest.TestCase):
     def test_signature(self):
-        EXPECTED_ATTRIBUTES = dict(x=(int, float), y=(int, float))
+        EXPECTED_ATTRIBUTES = dict(x=Point.x, y=Point.y)
         X1, Y1 = 0, 0
         X2, Y2 = 1.2, 3.5
 
@@ -180,7 +182,7 @@ class TestPoint(unittest.TestCase):
                 y=Y1
             )
         self.assertEqual(
-            "On Point: invalid attribute `x`, expected an instance of (<class 'int'>, <class 'float'>), got 0 which is a <class 'str'>.",
+            "On Point: Invalid attribute `x`, got 0 which is a <class 'str'>.",
             str(e.exception)
         )
 
@@ -196,7 +198,7 @@ class TestPoint(unittest.TestCase):
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.y = str(Y1)
         self.assertEqual(
-            "On Point: invalid attribute `y`, expected an instance of (<class 'int'>, <class 'float'>), got 0 which is a <class 'str'>.",
+            "On Point: Invalid attribute `y`, got 0 which is a <class 'str'>.",
             str(e.exception)
         )
 
@@ -212,47 +214,6 @@ class TestPoint(unittest.TestCase):
         with self.assertRaises(exceptions.InvalidAttribute) as e:
             sut.x = str(Y2)
         self.assertEqual(
-            "On Point: invalid attribute `x`, expected an instance of (<class 'int'>, <class 'float'>), got 3.5 which is a <class 'str'>.",
+            "On Point: Invalid attribute `x`, got 3.5 which is a <class 'str'>.",
             str(e.exception)
         )
-
-
-class Mixin(ValueObject):
-    value = Attribute()
-
-
-class TestMixin(unittest.TestCase):
-    def test_signature(self):
-        EXPECTED_ATTRIBUTES = dict(value=tuple())
-
-        with self.assertRaises(AssertionError) as e:
-            Mixin(
-                {'value': 'foo'},
-                value='foo',
-            )
-        self.assertEqual('Must specify input_dict or entries, both are not allowed', str(e.exception))
-
-        with self.assertRaises(exceptions.MissingAttribute) as e:
-            Mixin(foo='bar')
-        self.assertEqual('On Mixin: Missing attribute `value`.', str(e.exception))
-
-        sut = Mixin(
-            value='foo'
-        )
-        self.assertEqual('foo', sut.value)
-        self.assertIsInstance(sut.attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
-
-        sut = Mixin(
-            value=5
-        )
-        self.assertEqual(5, sut.value)
-        self.assertIsInstance(sut.attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)
-
-        sut = Mixin(
-            value=[1, 2, 3]
-        )
-        self.assertEqual([1, 2, 3], sut.value)
-        self.assertIsInstance(sut.attributes, dict)
-        self.assertEqual(EXPECTED_ATTRIBUTES, sut.attributes)

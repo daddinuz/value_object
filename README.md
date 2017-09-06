@@ -20,3 +20,7 @@ point2.y - point1.y  # outputs 1
 # Invalid use:
 Point(x=3)  # raises MissingAttribute
 ```
+
+## CREDITS
+
+Thanks to [pycomb](https://github.com/fcracker79/pycomb)!
