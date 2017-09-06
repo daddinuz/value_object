@@ -67,8 +67,8 @@ class ValueObject:
 
     def __setattr__(self, key, value):
         klass = self.__class__
-        attribute = klass._attributes[key]
-        if not attribute.is_valid(value):
+        attribute = klass._attributes.get(key)
+        if attribute and not attribute.is_valid(value):
             raise exceptions.InvalidAttribute(self, key, value)
         super().__setattr__(key, value)
 
