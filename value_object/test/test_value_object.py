@@ -1,11 +1,11 @@
 import unittest
-from value_object import ValueObject, Attribute, exceptions
+from value_object import ValueObject, exceptions, attributes
 
 
 class Person(ValueObject):
-    first_name = Attribute(str)
-    last_name = Attribute(str)
-    age = Attribute(int)
+    first_name = attributes.of(str)
+    last_name = attributes.of(str)
+    age = attributes.of(int)
 
 
 class TestPerson(unittest.TestCase):
@@ -81,8 +81,8 @@ class TestPerson(unittest.TestCase):
 
 
 class Pet(ValueObject):
-    name = Attribute(str)
-    owner = Attribute(Person, nullable=True)
+    name = attributes.of(str)
+    owner = attributes.of(Person, nullable=True)
 
 
 class TestPet(unittest.TestCase):
@@ -152,8 +152,8 @@ class TestPet(unittest.TestCase):
 
 
 class Point(ValueObject):
-    x = Attribute(int, float)
-    y = Attribute(int, float)
+    x = attributes.of(int, float)
+    y = attributes.of(int, float)
 
 
 class TestPoint(unittest.TestCase):

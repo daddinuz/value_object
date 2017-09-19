@@ -1,6 +1,5 @@
 import abc
 import typing
-
 from value_object import exceptions
 
 
@@ -14,28 +13,29 @@ def _extract_classes(klass: typing.Type) -> typing.Set[typing.Type]:
 
 
 class AbstractAttributeType(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def trait(self) -> typing.Type:
+        pass  # pragma: no cover
+
     @abc.abstractmethod
     def is_valid(self, value: typing.Any) -> bool:
         pass  # pragma: no cover
 
 
 class AbstractAttribute(metaclass=abc.ABCMeta):
+    @property
+    @abc.abstractmethod
+    def traits(self) -> typing.Sequence[typing.Type]:
+        pass  # pragma: no cover
+
+    @property
+    @abc.abstractmethod
+    def types(self) -> typing.Sequence[AbstractAttributeType]:
+        pass  # pragma: no cover
+
     @abc.abstractmethod
     def is_valid(self, value: typing.Any) -> bool:
-        pass  # pragma: no cover
-
-
-class AbstractAttributeTypesFactory(metaclass=abc.ABCMeta):
-    @abc.abstractmethod
-    def from_builtin_type(self, kind: typing.Type) -> AbstractAttributeType:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def from_value_object_type(self, obj: 'ValueObject') -> AbstractAttributeType:
-        pass  # pragma: no cover
-
-    @abc.abstractmethod
-    def from_pycomb_combinator_type(self, combinator: typing.Callable) -> AbstractAttributeType:
         pass  # pragma: no cover
 
 
@@ -80,27 +80,3 @@ class ValueObject:
     def attributes(self) -> typing.Dict[str, AbstractAttribute]:
         klass = self.__class__
         return klass._attributes
-
-
-class Attribute(AbstractAttribute):
-    def __init__(self, *types: typing.Iterable[typing.Type], nullable: bool = False):
-        assert types
-        assert None not in types
-        import warnings
-        from value_object.attributes import AttributeOfTypes
-        from value_object.attribute_types_factory import _INSTANCE
-        warnings.warn('class `Attribute` is deprecated use `AttributeOfTypes` instead.', DeprecationWarning)
-        attribute_types = [t for t in types]
-        nullable and attribute_types.append(type(None))
-
-        def _create():
-            for t in attribute_types:
-                if issubclass(t, ValueObject):
-                    yield _INSTANCE.from_value_object_type(t)
-                else:
-                    yield _INSTANCE.from_builtin_type(t)
-
-        self._delegate = AttributeOfTypes(*_create())
-
-    def is_valid(self, value: typing.Any) -> bool:
-        return self._delegate.is_valid(value)
